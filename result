@@ -1,0 +1,98 @@
+t_eat 200 t_sleep 200 t_die count 410 count 4
+le philo 0 peut prendre sa fourchette et celle de philo 1
+le philo 1 peut prendre sa fourchette et celle de philo 2
+le philo 2 peut prendre sa fourchette et celle de philo 3
+le philo 3 peut prendre sa fourchette et celle de philo 0
+1 : philo 3 test init
+1 : philo 3 cherche une fork!!
+1 : philo 3 a pris une fork!!
+1 : philo 3 a pris une fork!!
+1 : philo 3 est en train de manger!!
+1 : philo 1 test init
+1 : philo 1 cherche une fork!!
+1 : philo 1 a pris une fork!!
+1 : philo 1 a pris une fork!!
+1 : philo 1 est en train de manger!!
+2 : philo 0 test init
+2 : philo 0 cherche une fork!!
+1 : philo 2 test init
+3 : philo 2 cherche une fork!!
+201 : philo 3 a finis de manger
+202 : philo 3 start sleep !
+201 : philo 1 a finis de manger
+203 : philo 1 start sleep !
+203 : philo 0 a pris une fork!!
+203 : philo 0 a pris une fork!!
+203 : philo 0 est en train de manger!!
+203 : philo 2 a pris une fork!!
+203 : philo 2 a pris une fork!!
+203 : philo 2 est en train de manger!!
+402 : philo 3 cherche une fork!!
+403 : philo 1 cherche une fork!!
+403 : philo 0 a finis de manger
+403 : philo 2 a finis de manger
+403 : philo 2 start sleep !
+404 : philo 0 start sleep !
+404 : philo 3 a pris une fork!!
+404 : philo 3 a pris une fork!!
+404 : philo 3 est en train de manger!!
+404 : philo 1 a pris une fork!!
+404 : philo 1 a pris une fork!!
+404 : philo 1 est en train de manger!!
+603 : philo 2 cherche une fork!!
+604 : philo 1 a finis de manger
+604 : philo 1 start sleep !
+604 : philo 3 a finis de manger
+604 : philo 3 start sleep !
+604 : philo 2 a pris une fork!!
+604 : philo 2 a pris une fork!!
+604 : philo 2 est en train de manger!!
+604 : philo 0 cherche une fork!!
+604 : philo 0 a pris une fork!!
+604 : philo 0 a pris une fork!!
+604 : philo 0 est en train de manger!!
+804 : philo 1 cherche une fork!!
+804 : philo 2 a finis de manger
+804 : philo 2 start sleep !
+804 : philo 0 a finis de manger
+804 : philo 0 start sleep !
+804 : philo 3 cherche une fork!!
+804 : philo 3 a pris une fork!!
+804 : philo 3 a pris une fork!!
+804 : philo 3 est en train de manger!!
+804 : philo 1 a pris une fork!!
+805 : philo 1 a pris une fork!!
+805 : philo 1 est en train de manger!!
+1004 : philo 3 a finis de manger
+1004 : philo 3 start sleep !
+1004 : philo 2 cherche une fork!!
+1004 : philo 0 cherche une fork!!
+1010 : philo 1 a finis de manger
+1010 : philo 1 start sleep !
+1010 : philo 2 a pris une fork!!
+1010 : philo 2 a pris une fork!!
+1010 : philo 2 est en train de manger!!
+1011 : philo 0 a pris une fork!!
+1011 : philo 0 a pris une fork!!
+1011 : philo 0 est en train de manger!!
+1204 : philo 3 cherche une fork!!
+1210 : philo 1 cherche une fork!!
+1211 : philo 0 a finis de manger
+1211 : philo 0 start sleep !
+
+
+
+
+philo 3 : 411 | 410
+
+
+
+
+ 1215 : philo 2 a finis de manger
+1216 : philo 2 start sleep !
+1216 : philo 1 a pris une fork!!
+1216 : philo 1 a pris une fork!!
+1217 : philo 1 est en train de manger!!
+1216 : philo 3 a pris une fork!!
+1217 : philo 3 a pris une fork!!
+1217 : philo 3 est en train de manger!!
