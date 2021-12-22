@@ -17,6 +17,7 @@ typedef struct s_arg
 {
 	int				t_eat;
 	int				t_die;
+	int				c_eat;
 	int				t_sleep;
 	int				max_eat;
 	long	int		time;
@@ -30,6 +31,7 @@ typedef struct s_philo
 	struct s_mutex	fork;
 	struct s_mutex	*next_fork;
 	int				eat_c;
+	struct s_mutex	full;
 	long int		last_eat;
 	pthread_t		thread;
 	int 			dead;
@@ -53,4 +55,5 @@ long int	actual_time(void);
 int			check_death(t_philo *philo);
 int			a_table(t_philo *philo);
 int			time_sleep(t_philo *philo);
+int		check_full(t_philo *philo);
 #endif

@@ -67,40 +67,43 @@ int    give_fork(t_philo *philo, int nb)
 				pthread_mutex_unlock(&(philo->next_fork->mutex));
         }
     }
-    if (i)
-        print(philo->id, "prend une fork!!", philo);
     return (i);
 }
 
 void    *routine(void *arg)
 {
     t_philo     *philo;
-    int         i;
 
     philo = (t_philo *)arg;
 
-    print(philo->id, "test init", philo);
     philo->last_eat = actual_time();
-    while (1)
+    philo->eat_c = 0;
+    while (!check_full(philo) && !check_death(philo) && (philo->arg->c_eat < 0 || philo->arg->c_eat > philo->eat_c))
     {
-        i = 0;
         if (philo->next_fork)
         {
-	        print(philo->id, "cherche une fork!!", philo);
             while (!give_fork(philo, 1) && !check_death(philo))
             {
-                
+                usleep(1);
             }
             while (!give_fork(philo, 2) && !check_death(philo))
-			{
-                
-			}
+            {
+                usleep(1);
+            }
             if (!check_death(philo))
             {
                 //print(philo->id, "veut manger", philo);
                 a_table(philo);
+                philo->eat_c += 1;
+                if ((philo->eat_c >= philo->arg->c_eat) && philo->arg->c_eat != -1)
+                {
+                    pthread_mutex_lock(&(philo->full.mutex));
+                        philo->full.data = 1;
+                    pthread_mutex_unlock(&(philo->full.mutex));
+                }
                 time_sleep(philo);
             }
+        print(philo->id, "has taken a fork", philo);
         }
     }
     return (NULL);
@@ -134,6 +137,10 @@ int main(int ac, char **av)
     env = malloc(sizeof(t_env));
     env->arg = malloc(sizeof(t_arg));
     ///init_philo()
+    if (ac == 6)
+        env->arg->c_eat = ft_atoi(av[5]);
+    else
+        env->arg->c_eat = -1;
     env->arg->t_eat = ft_atoi(av[3]);
     env->arg->t_sleep = ft_atoi(av[4]);
     env->arg->t_die = ft_atoi(av[2]);
@@ -153,48 +160,61 @@ int main(int ac, char **av)
         env->philo[i].arg = env->arg;
         env->philo[i].last_eat = actual_time();
         env->philo[i].id = i;
+
         i++;
        // err = pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start_routine) (void *), void *arg)
     }
     i = -1;
     while (++i < env->count)
     {
-        if (i == env->count - 1)
+        if (env->count == 1)
         {
+            //  printf("le philo %d est seul et n aura pas deux fourchettes\n", i);
+            env->philo[i].next_fork = NULL;
+        }
+        else if (i == env->count - 1)
+        {
+            printf("num %d\n", i);
             //printf("le philo %d peut prendre sa fourchette et celle de philo %d\n", i, 0);
             env->philo[i].next_fork = &env->philo[0].fork;
-        }
-        else if (env->count == 1)
-        {
-          //  printf("le philo %d est seul et n aura pas deux fourchettes\n", i);
-            env->philo[i].next_fork = NULL;
         }
         else
         {
             env->philo[i].next_fork = &env->philo[i + 1].fork;
             //printf("le philo %d peut prendre sa fourchette et celle de philo %d\n", i, i + 1);
         }
-        pthread_create(&(env->philo[i].thread), NULL, routine, &(env->philo[i]));
     }
-
+    i = 0;
+    while (i < env->count)
+    {   if (i % 2)
+            pthread_create(&(env->philo[i].thread), NULL, routine, &(env->philo[i]));
+    i++;
+    }    
+    i = 0;
+    usleep((env->arg->t_eat/2) * 1000);
+    while (i < env->count)
+    {   if (!(i % 2))
+            pthread_create(&(env->philo[i].thread), NULL, routine, &(env->philo[i]));
+    i++;
+    }
     //int pthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start_routine) (void *), void *arg);
     //test(philo->c_eat, philo->count);
     while (1)
     {
         long int time;
-
         i = 0;
         while (i < env->count && env->philo[i].thread)
         {
             time = actual_time();
-            if (time - env->philo[i].last_eat > env->arg->t_die)
+            if ((time - env->philo[i].last_eat > env->arg->t_die) && !check_full(&env->philo[i]))
             {
                 	print(env->philo[i].id, "MORT DE DECES :\n", &env->philo[i]);
                     printf("dernier repas : %ld\n", env->philo[i].last_eat - env->philo->arg->time);
                 exit(EXIT_FAILURE);
-            }
             i++;
+            }
         }
+        usleep(10);
     }
     free(env->philo);
     free(env);
