@@ -3,6 +3,22 @@
 
 //valgrind --tool=helgrind
 // fsanitize=thread
+
+void custom_exit(t_philo *philo, t_env *env, int err)
+{
+    if (env)
+    {
+        if (env->arg)
+        {
+            free(env->arg);
+        }
+        free(env);
+    }
+    if (philo)
+        free(philo);
+    exit(err);
+}
+
 void print_time(int time, int philnb, char *str)
 {
    printf("%dms |Philo%d| :%s", time, philnb, str);
@@ -76,7 +92,10 @@ void    *routine(void *arg)
 
     philo = (t_philo *)arg;
 
-    philo->last_eat = actual_time();
+    pthread_mutex_lock(&philo->last_eat.mutex);
+    philo->last_eat.data = actual_time();
+    pthread_mutex_unlock(&philo->last_eat.mutex);
+
     philo->eat_c = 0;
     while (!check_full(philo) && !check_death(philo) && (philo->arg->c_eat < 0 || philo->arg->c_eat > philo->eat_c))
     {
@@ -84,10 +103,12 @@ void    *routine(void *arg)
         {
             while (!give_fork(philo, 1) && !check_death(philo))
             {
+                //printf("j essaye fouchette 1 philo %d", philo->id);
                 usleep(1);
             }
             while (!give_fork(philo, 2) && !check_death(philo))
             {
+                //printf("j essaye fouchette 2 philo %d", philo->id);
                 usleep(1);
             }
             if (!check_death(philo))
@@ -123,6 +144,18 @@ int is_dead(t_env *env)
     return (0);
 }
 
+void custom_close(t_env *env)
+{
+    int i;
+
+    i = 0;
+    while (i < env->count)
+    {
+        pthread_join(env->philo[i].thread, NULL);
+        i++;
+    }
+}
+
 int main(int ac, char **av)
 {
     t_env *env;
@@ -152,13 +185,17 @@ int main(int ac, char **av)
     pthread_mutex_lock(&(env->arg->dead.mutex));
     env->arg->dead.data = 0;
     pthread_mutex_unlock(&(env->arg->dead.mutex));
+    pthread_mutex_lock(&(env->arg->print.mutex));
+    env->arg->print.data = 1;
+    pthread_mutex_unlock(&(env->arg->print.mutex));
     while (i < env->count)
     {
         env->philo[i].dead = 0;
         pthread_mutex_init(&(env->philo[i].fork.mutex), NULL);
         env->philo[i].fork.data = 1 ;
         env->philo[i].arg = env->arg;
-        env->philo[i].last_eat = actual_time();
+
+        env->philo[i].last_eat.data = actual_time();
         env->philo[i].id = i;
 
         i++;
@@ -206,15 +243,22 @@ int main(int ac, char **av)
         while (i < env->count && env->philo[i].thread)
         {
             time = actual_time();
-            if ((time - env->philo[i].last_eat > env->arg->t_die) && !check_full(&env->philo[i]))
+            pthread_mutex_lock(&env->philo[i].last_eat.mutex);
+            if ((time - env->philo[i].last_eat.data > env->arg->t_die) && !check_full(&env->philo[i]))
             {
-                	print(env->philo[i].id, "MORT DE DECES :\n", &env->philo[i]);
-                    printf("dernier repas : %ld\n", env->philo[i].last_eat - env->philo->arg->time);
-                exit(EXIT_FAILURE);
+                pthread_mutex_unlock(&env->philo[i].last_eat.mutex);
+                print(env->philo[i].id, "MORT DE DECES :\n", &env->philo[i]);
+                    pthread_mutex_lock(&env->arg->dead.mutex);
+                    env->arg->dead.data = 1;
+                    pthread_mutex_unlock(&env->arg->dead.mutex);
+                    printf("dernier repas : %ld\n", env->philo[i].last_eat.data - env->philo->arg->time);
+                custom_close(env);
+                custom_exit(env->philo, env, EXIT_FAILURE);
             i++;
             }
+            pthread_mutex_unlock(&env->philo[i].last_eat.mutex);
+            usleep(1);
         }
-        usleep(10);
     }
     free(env->philo);
     free(env);

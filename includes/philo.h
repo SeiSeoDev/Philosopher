@@ -9,7 +9,7 @@
 
 typedef struct s_mutex
 {
-	int				data;
+	long int		data;
 	pthread_mutex_t	mutex;
 }	t_mutex;
 
@@ -22,6 +22,7 @@ typedef struct s_arg
 	int				max_eat;
 	long	int		time;
 	struct s_mutex	dead;
+	struct s_mutex	print;
 }				t_arg;
 
 typedef struct s_philo
@@ -32,7 +33,7 @@ typedef struct s_philo
 	struct s_mutex	*next_fork;
 	int				eat_c;
 	struct s_mutex	full;
-	long int		last_eat;
+	struct s_mutex	last_eat;
 	pthread_t		thread;
 	int 			dead;
 	t_arg			*arg;
