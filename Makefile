@@ -10,13 +10,14 @@ DIR_S = srcs/
 HEADER = includes/
 
 SOURCES =	main.c				\
-			philo_utils.c
+			philo_utils.c		\
+			checkers.c
 
 SRCS = $(addprefix $(DIR_S),$(SOURCES))
 
 OBJS = $(SRCS:.c=.o)
 
-CFLAGS = -Wall -Werror -Wextra -I $(HEADER) -g -fsanitize=thread
+CFLAGS = -Wall -Werror -Wextra -I $(HEADER) -pthread 
 
 FLAGS = -L $(LIBFT) -lft
 

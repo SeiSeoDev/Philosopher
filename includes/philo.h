@@ -6,6 +6,8 @@
 #include <pthread.h>
 #include "libft.h"
 #include <stdio.h>
+#include <sys/time.h>
+
 
 typedef struct s_mutex
 {
@@ -54,7 +56,8 @@ typedef struct s_env
 int			print(int id, char *msg, t_philo *philo);
 long int	actual_time(void);
 int			check_death(t_philo *philo);
-int			a_table(t_philo *philo);
+void		a_table(t_philo *philo);
 int			time_sleep(t_philo *philo);
 int		check_full(t_philo *philo);
+int 	check_all_full(t_env *env);
 #endif
