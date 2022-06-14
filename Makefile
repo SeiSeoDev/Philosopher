@@ -11,13 +11,16 @@ HEADER = includes/
 
 SOURCES =	main.c				\
 			philo_utils.c		\
-			checkers.c
+			checkers.c			\
+			eat.c				\
+			init_philo.c		\
+			routine.c
 
 SRCS = $(addprefix $(DIR_S),$(SOURCES))
 
 OBJS = $(SRCS:.c=.o)
 
-CFLAGS = -Wall -Werror -Wextra -I $(HEADER) -pthread 
+CFLAGS = -Wall -Werror -Wextra -I $(HEADER) -pthread
 
 FLAGS = -L $(LIBFT) -lft
 

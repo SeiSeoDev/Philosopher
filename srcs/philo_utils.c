@@ -6,7 +6,7 @@
 /*   By: dasanter <dasanter@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/18 14:30:49 by dasanter          #+#    #+#             */
-/*   Updated: 2022/02/01 12:54:55 by dasanter         ###   ########.fr       */
+/*   Updated: 2022/02/08 15:01:44 by dasanter         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,22 +18,20 @@ int	print(int id, char *msg, t_philo *philo)
 	int			ret;
 
 	ret = 0;
-	while (!ret && !check_death(philo))
+	while (!ret)
 	{
 		pthread_mutex_lock(&(philo->arg->print.mutex));
-		ret = philo->arg->print.data == 1;
-		if (ret)
-			philo->arg->print.data = 0;
-		pthread_mutex_unlock(&(philo->arg->print.mutex));
-	}
-	time = actual_time();
-	if (time < 0)
-		return (0);
-	if (!check_death(philo))
-	{	
-		printf("%ld : philo %d %s\n", time - philo->arg->time, id + 1, msg);
-		pthread_mutex_lock(&(philo->arg->print.mutex));
-		philo->arg->print.data = 1;
+		time = actual_time();
+		if (check_death(philo) || !philo->arg->print.data)
+		{	
+			pthread_mutex_unlock(&(philo->arg->print.mutex));
+			return (0);
+		}
+		else
+		{
+			printf("%ld : philo %d %s\n", time - philo->arg->time, id + 1, msg);
+			ret = 1;
+		}
 		pthread_mutex_unlock(&(philo->arg->print.mutex));
 	}
 	return (1);
@@ -45,17 +43,22 @@ int	time_sleep(t_philo *philo)
 	long int	sleep;
 
 	time = actual_time();
-	print(philo->id, "start sleep !", philo);
+	print(philo->id, "is sleeping", philo);
 	while ((actual_time() - time < philo->arg->t_sleep) && !check_death(philo))
 	{
 		if (philo->arg->t_sleep - (actual_time() - time) > philo->arg->t_die)
 			sleep = philo->arg->t_die;
 		else
 			sleep = ((philo->arg->t_sleep - (actual_time() - time)) / 2);
-		if (check_death(philo))
+		if (sleep < 0)
 			return (0);
+		if (check_death(philo))
+		{
+			return (0);
+		}
 		usleep(sleep);
 	}
+	print(philo->id, "is thinking", philo);
 	return (1);
 }
 
@@ -69,7 +72,7 @@ void	a_table(t_philo *philo)
 	philo->last_eat.data = time;
 	pthread_mutex_unlock(&(philo->last_eat.mutex));
 	print(philo->id, "is eating", philo);
-	while ((actual_time() - time) < (philo->arg->t_eat))
+	while ((actual_time() - time) < (philo->arg->t_eat) && !check_death(philo))
 	{
 		if (philo->arg->t_eat - (actual_time() - time) > philo->arg->t_die)
 			eating = philo->arg->t_die;
@@ -85,5 +88,28 @@ void	a_table(t_philo *philo)
 		pthread_mutex_lock(&(philo->next_fork->mutex));
 		philo->next_fork->data = 1;
 		pthread_mutex_unlock(&(philo->next_fork->mutex));
+	}
+}
+
+long int	actual_time(void)
+{
+	struct timeval	tv;
+	int				err;
+
+	err = gettimeofday(&tv, NULL);
+	if (err != 0)
+		return (-1);
+	return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
+}
+
+void	custom_close(t_env *env)
+{
+	int	i;
+
+	i = 0;
+	while (i < env->count)
+	{
+		pthread_join(env->philo[i].thread, NULL);
+		i++;
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: dasanter <dasanter@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/01 12:54:45 by dasanter          #+#    #+#             */
-/*   Updated: 2022/02/01 12:55:52 by dasanter         ###   ########.fr       */
+/*   Updated: 2022/02/07 17:31:03 by dasanter         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,12 +42,18 @@ int	check_death(t_philo *philo)
 {
 	int	ret;
 
-	ret = 0;
-	pthread_mutex_lock(&(philo->arg->dead.mutex));
-	if (philo->arg->dead.data == 1)
+	ret = -1;
+	while (ret == -1)
 	{
-		ret = 1;
+		pthread_mutex_lock(&(philo->arg->dead.mutex));
+		if (philo->arg->dead.data == 1)
+		{
+			ret = 1;
+			philo->arg->dead.data = 1;
+		}
+		else
+			ret = 0;
+		pthread_mutex_unlock(&(philo->arg->dead.mutex));
 	}
-	pthread_mutex_unlock(&(philo->arg->dead.mutex));
 	return (ret);
 }
